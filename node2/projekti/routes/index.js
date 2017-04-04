@@ -1,59 +1,85 @@
 var express = require('express');
 var router = express.Router();
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
-});
+var isAuthenticated = function (req, res, next) {
+    // if user is authenticated in the session, call the next() to call the next request handler 
+    // Passport adds this method to request object. A middleware is allowed to add properties to
+    // request and response objects
+    if (req.isAuthenticated())
+        return next();
+    // if the user is not authenticated then redirect him to the login page
+    res.redirect('/');
 
-router.get('/helloworld', function(req, res, next) {
-  res.render('helloworld', { title: 'Hello world!' });
-});
+var isAuthenticated = function (req, res, next) {
+    if (req.isAuthenticated())
+    return next();
 
-router.get('/userlist', function(req, res) {
-    var db = req.db;
-    var collection = db.get('usercollection');
-    collection.find({},{},function(e,docs){
-        res.render('userlist', {
-            "userlist" : docs
+}
+}
+
+module.exports = function(passport){
+
+    /* GET home page. */
+    router.get('/', function(req, res, next) {
+      res.render('index', { title: 'Main' });
+    });
+
+    router.get('/userlist', function(req, res) {
+        var User = require('../models/usermodel');
+
+        User.find({},{},function(e,docs){
+            res.render('userlist', {
+                "userlist" : docs
+            });
         });
     });
-});
 
-router.get('/newuser', function(req, res) {
-    res.render('newuser', { title: 'Add New User' });
-});
-
-/* POST to Add User Service */
-router.post('/adduser', function(req, res) {
-
-    // Set our mongodb variable
-    var db = req.db;
-
-    // Get our form values. These rely on the "name" attributes
-    var userName = req.body.username;
-    var userEmail = req.body.useremail;
-    var userPassword = req.body.userpassword;
-
-    // Set our collection
-    var collection = db.get('usercollection');
-
-    // Submit to the DB
-    collection.insert({
-        "username" : userName,
-        "email" : userEmail,
-        "password" : userPassword
-    }, function (err, doc) {
-        if (err) {
-            // If it failed, return error
-            res.send("There was a problem adding the information to the database.");
-        }
-        else {
-            // And forward to success page
-            res.redirect("userlist");
-        }
+    router.get('/login', function(req, res){
+        res.render('login', { message: req.flash('message') });
     });
-});
 
-module.exports = router;
+    /* GET signup*/
+    router.get('/signup', function(req, res){
+        res.render('signup', {message: req.flash('message')});
+    });
+
+    //GET remove
+    router.get('/remove', function(req, res){
+        res.render('remove', { message: req.flash('message') });
+    });
+
+    //POST to Login
+    router.post('/login', passport.authenticate('login', {
+    successRedirect: '/home',
+    failureRedirect: '/',
+    failureFlash : true 
+    }));
+
+    // POST to Sign up
+    router.post('/signup', passport.authenticate('signup', {
+        successRedirect: '/home',
+        failureRedirect: '/signup',
+        failureFlash : true  
+    }));
+
+        //POST to remove
+    router.post('/remove', passport.authenticate('remove', {
+        successRedirect: '/',
+        failureRedirect: '/remove',
+        failureFlash : true 
+    }));
+
+    //GET home
+    router.get('/home', isAuthenticated, function(req, res){
+        res.render('home', { user: req.user });
+    });
+
+    router.get('/signout', function(req, res) {
+        req.logout();
+        res.redirect('/');
+    });
+
+    return router;
+
+}
 

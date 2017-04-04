@@ -1,0 +1,15 @@
+extends layout
+
+block content
+	div.container
+		div.row
+			div
+				#user
+					h3.text-center.login-title Welcome #{user.username}. 
+					h3.text-center.login-title Check your details below:
+					div.signup-wall
+						ul.user-details
+							p.text-center Username: #{user.username}
+							p.text-center Email: #{user.email}
+								br
+								a(href='/signout') Sign Out

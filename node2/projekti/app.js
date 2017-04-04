@@ -5,14 +5,41 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-var mongo = require('mongodb');
-var monk = require('monk');
-var db = monk('localhost:27017/node2')
-
-var index = require('./routes/index');
-var users = require('./routes/users');
 
 var app = express();
+
+ // Using the flash middleware provided by connect-flash to store messages in session
+ // and displaying in templates
+var flash = require('connect-flash');
+app.use(flash());
+
+//PASSPORT - EXPRESS-SESSION
+var passport = require('passport');
+var expressSession = require('express-session');
+app.use(expressSession({secret: 'mySecretKey'}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Initialize Passport
+var initPassport = require('./passport/init');
+initPassport(passport);
+
+var index = require('./routes/index')(passport);
+
+
+//MONGOOSE
+var mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost/node2');
+
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function() {
+  console.log("Succesfully connected to database");
+});
+
+//MONGOOSE
+
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -26,14 +53,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Make mongodb accessible to router
-app.use(function(req,res,next){
-    req.db = db;
-    next();
-});
-
 app.use('/', index);
-app.use('/users', users);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
