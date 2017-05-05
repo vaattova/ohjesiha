@@ -1,14 +1,13 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var crypto = require('crypto');
-
 var userSchema = new Schema({
     username: String,
     password: String,
-    email: String
+    email: String,
+    movies: [],
 });
- 
-var User = mongoose.model('User', userSchema);
+
+var User = mongoose.model('User', userSchema, 'users');
 
 module.exports = User;

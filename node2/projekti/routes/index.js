@@ -1,5 +1,7 @@
 var express = require('express');
 var router = express.Router();
+var apiCall = require('../public/javascripts/omdbapi');
+var getMovieList = require('../public/javascripts/lister');
 
 var isAuthenticated = function (req, res, next) {
     // if user is authenticated in the session, call the next() to call the next request handler 
@@ -8,30 +10,22 @@ var isAuthenticated = function (req, res, next) {
     if (req.isAuthenticated())
         return next();
     // if the user is not authenticated then redirect him to the login page
-    res.redirect('/');
-
-var isAuthenticated = function (req, res, next) {
-    if (req.isAuthenticated())
-    return next();
-
-}
+    res.redirect('/login');
 }
 
 module.exports = function(passport){
 
     /* GET home page. */
     router.get('/', function(req, res, next) {
-      res.render('index', { title: 'Main' });
+      res.render('index', { title: 'Welcome page' });
     });
 
-    router.get('/userlist', function(req, res) {
-        var User = require('../models/usermodel');
+    router.get('/movielist', isAuthenticated, function(req, res) {
+    	getMovieList(req, res);
 
-        User.find({},{},function(e,docs){
-            res.render('userlist', {
-                "userlist" : docs
-            });
-        });
+    	//This called in gerMovieList... Async...
+    	//res.render('movielist', { movies: moviesList});
+        
     });
 
     router.get('/login', function(req, res){
@@ -44,14 +38,14 @@ module.exports = function(passport){
     });
 
     //GET remove
-    router.get('/remove', function(req, res){
+    router.get('/remove', isAuthenticated, function(req, res){
         res.render('remove', { message: req.flash('message') });
     });
 
     //POST to Login
     router.post('/login', passport.authenticate('login', {
     successRedirect: '/home',
-    failureRedirect: '/',
+    failureRedirect: '/login',
     failureFlash : true 
     }));
 
@@ -70,7 +64,7 @@ module.exports = function(passport){
     }));
 
     //GET home
-    router.get('/home', isAuthenticated, function(req, res){
+    router.get('/home', isAuthenticated, function(req, res) {
         res.render('home', { user: req.user });
     });
 
@@ -78,6 +72,15 @@ module.exports = function(passport){
         req.logout();
         res.redirect('/');
     });
+
+    router.get('/addmovie', isAuthenticated, function(req, res) {
+        res.render('addmovie');
+    });
+
+    router.post('/addmovie', function(req, res) {
+        apiCall(req);
+        res.render('home', {user: req.user });
+    })
 
     return router;
 

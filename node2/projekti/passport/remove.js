@@ -8,20 +8,28 @@ module.exports = function(passport){
             passReqToCallback : true
         },
         function(req, username, password, done) { 
-            //If found, remove user
-            console.log("tanne tultiin.");
-            User.where({'username': username}).findOneAndRemove(function(err){
+
+            //Etsii nimella
+            User.findOne({'username': username}, function(err, user){
                 if (err){
-                    console.log('Error in removing user: '+err);  
-                    throw err;  
+                    return done(err);
                 }
-                console.log('User removal succesful');    
-                return done(null, true);
-            
+                //jos ei löydy, tieto Flashille
+                if (!user){
+                    console.log("User not found with the username " +username);
+                    return done(null, false, req.flash('message', 'User not found'));
+                }
+
+                //Löytyy mut väärä salasana
+                if(!isValidPassword(user, password)){
+                    console.log('Invalid password');
+                    return done(null, false, req.flash('message', 'Invalid Password'));
+                }
+
+                //Poistetaan ja deserializoidaan null... jotenkin toimii kai.
+                user.remove();
+                return done(null, null);
             });
-
-            
-
         })
     );
 

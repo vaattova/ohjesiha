@@ -20,12 +20,13 @@ app.use(expressSession({secret: 'mySecretKey'}));
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Initialize Passport
+
+// Initialize PASSPORT
 var initPassport = require('./passport/init');
 initPassport(passport);
 
 var index = require('./routes/index')(passport);
-
+//PASSPORT
 
 //MONGOOSE
 var mongoose = require('mongoose');
@@ -36,17 +37,14 @@ db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
   console.log("Succesfully connected to database");
 });
-
 //MONGOOSE
-
 
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-// uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+//
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));

@@ -1,0 +1,26 @@
+extends layout
+
+block content
+    h1.
+        My Movies
+
+    div
+        ul
+            each movie in movies
+                li= movie.title
+                li= movie.year
+                li= movie.rated
+                li= movie.released
+                li= movie.runtime
+                li= movie.director
+                li= movie.writer
+                li= movie.actors
+                li= movie.plot
+                li= movie.language
+                li= movie.country
+                li= movie.awards
+                button(class='btn btn-lg btn-primary btn-block', type='submit') Remove
+                img.posterimage(src=movie.poster)
+                br
+                br
+                br
