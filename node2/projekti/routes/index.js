@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var apiCall = require('../public/javascripts/omdbapi');
+var remover = require('../public/javascripts/remover');
+var rater = require('../public/javascripts/rater');
 var getMovieList = require('../public/javascripts/lister');
 
 var isAuthenticated = function (req, res, next) {
@@ -32,15 +34,33 @@ module.exports = function(passport){
         res.render('login', { message: req.flash('message') });
     });
 
+    //GET home
+    router.get('/home', isAuthenticated, function(req, res) {
+        res.render('home', { user: req.user });
+    });
+
     /* GET signup*/
     router.get('/signup', function(req, res){
         res.render('signup', {message: req.flash('message')});
+    });
+
+    router.get('/signout', function(req, res) {
+        req.logout();
+        res.redirect('/');
+    });
+
+    router.get('/addmovie', isAuthenticated, function(req, res) {
+        res.render('addmovie');
     });
 
     //GET remove
     router.get('/remove', isAuthenticated, function(req, res){
         res.render('remove', { message: req.flash('message') });
     });
+
+    //GETS END
+
+    //POSTS BEGIN
 
     //POST to Login
     router.post('/login', passport.authenticate('login', {
@@ -63,24 +83,20 @@ module.exports = function(passport){
         failureFlash : true 
     }));
 
-    //GET home
-    router.get('/home', isAuthenticated, function(req, res) {
-        res.render('home', { user: req.user });
-    });
-
-    router.get('/signout', function(req, res) {
-        req.logout();
-        res.redirect('/');
-    });
-
-    router.get('/addmovie', isAuthenticated, function(req, res) {
-        res.render('addmovie');
-    });
-
     router.post('/addmovie', function(req, res) {
-        apiCall(req);
-        res.render('home', {user: req.user });
+        apiCall(req, res);
+        //res.render('home', {user: req.user });
     })
+
+    router.post('/movielist', function(req, res) {
+    	remover(req, res);
+    });
+
+    router.post('/movielist2', function(req, res) {
+
+    	rater(req, res);
+    });
+
 
     return router;
 

@@ -1,13 +1,19 @@
 extends layout
 
 block content
+
     h1.
         My Movies
 
     div
         ul
             each movie in movies
-                li= movie.title
+                h3.
+                    #{movie.title}
+                div
+                    img.posterimage(src=movie.poster)
+
+
                 li= movie.year
                 li= movie.rated
                 li= movie.released
@@ -19,8 +25,31 @@ block content
                 li= movie.language
                 li= movie.country
                 li= movie.awards
-                button(class='btn btn-lg btn-primary btn-block', type='submit') Remove
-                img.posterimage(src=movie.poster)
+                li= movie.average
+                form(class='removef', action='/movielist', method='POST')
+                    input(type='hidden', name='title' value=movie.title class='form-control', placeholder='title',required,autofocus)
+                    button(class='btn btn-lg btn-primary btn-block', type='submit') Remove
+                    span.clearfix
+
+                form(class='ratemv', action='/movielist2', method='POST')
+                    input(type='hidden', name='title' value=movie.title class='form-control', placeholder='title',required,autofocus)
+                    select(name="rating")
+                        option(value="0") 0/5
+                        option(value="0.5") 0.5/5
+                        option(value="1") 1/5
+                        option(value="1.5") 1.5/5
+                        option(value="2") 2/5
+                        option(value="2.5") 2.5/5
+                        option(value="3") 3/5
+                        option(value="3.5") 3.5/5
+                        option(value="4") 4/5
+                        option(value="4.5") 4.5/5
+                        option(value="5") 5/5
+                    span.clearfix
+
+                    button.ratebutton(class='btn btn-lg btn-primary btn-block', type='submit') Rate
+                    span.clearfix
+
                 br
                 br
                 br

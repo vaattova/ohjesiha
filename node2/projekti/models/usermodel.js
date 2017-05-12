@@ -6,6 +6,7 @@ var userSchema = new Schema({
     password: String,
     email: String,
     movies: [],
+    rated: {},
 });
 
 var User = mongoose.model('User', userSchema, 'users');

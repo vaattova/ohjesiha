@@ -2,7 +2,7 @@ var Movie = require('../../models/moviemodel');
 var User = require('../../models/usermodel');
 var https = require('https');
 
-module.exports = function(req) {
+module.exports = function(req, res) {
 
 	var queryName = req.user.username;
 
@@ -32,37 +32,52 @@ module.exports = function(req) {
           		return;
         	}
 
-			var newMovie = new Movie();
+        	Movie.findOne({'title': leffa.Title}, function(err, doc){
 
-        	newMovie.title = leffa.Title;
-        	newMovie.year = leffa.Year;
-        	newMovie.genre = leffa.Genre;
-        	newMovie.poster = leffa.Poster;
-        	newMovie.rated = leffa.Rated;
-    		newMovie.released = leffa.Released;
-		    newMovie.runtime = leffa.Runtime;
-		    newMovie.director = leffa.Director;
-		    newMovie.writer = leffa.Writer;
-		    newMovie.actors = leffa.Actors;
-		    newMovie.plot = leffa.Plot;
-		    newMovie.language = leffa.Language;
-		    newMovie.country = leffa.Country;
-		    newMovie.awards = leffa.Awards;
+        		if (err) {
+			      return next(new Error(err));
+			    }
+        		if(!doc){
+        			var newMovie = new Movie();
 
-    		newMovie.save(function(err) {
-		        if (err){
-		            console.log('Error in Saving movie: '+err);  
-		            throw err;  
-		        }
-		        console.log('Movie save succesful');    
-		    });
+		        	newMovie.title = leffa.Title;
+		        	newMovie.year = leffa.Year;
+		        	newMovie.genre = leffa.Genre;
+		        	newMovie.poster = leffa.Poster;
+		        	newMovie.rated = leffa.Rated;
+		    		newMovie.released = leffa.Released;
+				    newMovie.runtime = leffa.Runtime;
+				    newMovie.director = leffa.Director;
+				    newMovie.writer = leffa.Writer;
+				    newMovie.actors = leffa.Actors;
+				    newMovie.plot = leffa.Plot;
+				    newMovie.language = leffa.Language;
+				    newMovie.country = leffa.Country;
+				    newMovie.awards = leffa.Awards;
 
-		    User.update({ 'username': queryName}, {$push: { 'movies' : newMovie.title }}, {upsert:true}, function(err, data){
-		    	if(err){
-		    		throw err;
-		    	}
-		    	console.log("Successfully saved movie " + leffa.Title);
-		    });		    
+		    		newMovie.save(function(err) {
+				        if (err){
+				            console.log('Error in Saving movie: '+err);  
+				            throw err;  
+				        }
+				        console.log('Movie save succesful');    
+				    });
+        		}
+
+        		//ADDS TO USER'S MOVIES (even if in movie-collection already), STILL ADDS EVEN IF EXISTS!
+        		
+ 				User.update({ 'username': queryName}, {$push: { 'movies' : leffa.Title }}, {upsert:true}, function(err, data){
+			    	if(err){
+			    		throw err;
+			    	}
+			    	console.log("Successfully saved movie " + leffa.Title);
+			    });	
+
+        		
+
+        	});
+
+	    
     	});
 	});
 
@@ -71,5 +86,7 @@ module.exports = function(req) {
 	});
 
 	reqGet.end();
+
+	res.redirect('/movielist');
 
 }

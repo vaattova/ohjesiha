@@ -16,6 +16,8 @@ var movieSchema = new Schema({
     language: String,
     country: String,
     awards: String,
+    ratings: [],
+    average: String,
 
 });
 
